@@ -62,16 +62,22 @@ class RentalPoint:
     kind: RentalKind = RentalKind.BIKE
 
 
+class EntityType(Enum):
+    RESTARAUNT = "restaurant"
+    TRANSPORT = "transport"
+    RENTAL_POINT = "rental"
+
+
 Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
 
 
 @dataclass
 class Location:
     coord: Coordinates
+    radius: Distance
 
     def __str__(self):
-        return "Lat: {}, Lon: {}".format(self.coord.lat, self.coord.lon)
-
+        return "lat: {}, lon: {}, radius: {}".format(self.coord.lat, self.coord.lon, self.radius)
 
 
 @dataclass
@@ -92,6 +98,7 @@ class LocationDescription:
 
 
 @dataclass
-class LocationPreferences:
+class EntityPreferences:
+    entity_type: EntityType
     # TODO Add some preferences like type, ...
     ...

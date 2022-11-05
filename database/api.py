@@ -104,9 +104,12 @@ def get_overall_about_location(
 
 
 def get_best_entites(
-        coords: instaces.Coordinates,
-        radius: instaces.Distance,
-        n_max_results: int,
+
+    coords: instaces.Coordinates,
+    radius: instaces.Distance,
+    n_max_results: int,
+    preferences: instaces.EntityPreferences,
+
 ) -> t.List[t.Tuple[instaces.Entity, instaces.EntityDescription]]:
 
     return []
