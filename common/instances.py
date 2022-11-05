@@ -5,7 +5,11 @@ from dataclasses import dataclass
 
 
 # TODO: Choose better types
-Coordinates = str
+@dataclass
+class Coordinates:
+    latitude: float
+    longitude: float
+
 
 Distance = float
 
@@ -51,6 +55,12 @@ class RentalPoint:
     kind: RentalKind
 
 
+class EntityType(Enum):
+    RESTARAUNT = "restaurant"
+    TRANSPORT = "transport"
+    RENTAL_POINT = "rental"
+
+
 Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
 
 
@@ -75,6 +85,7 @@ class LocationDescription:
 
 
 @dataclass
-class LocationPreferences:
+class EntityPreferences:
+    entity_type: EntityType
     # TODO Add some preferences like type, ...
     ...
