@@ -1,74 +1,86 @@
+import typing as t
+import telegram
 import logging
 
-from telegram import __version__ as TG_VER
-
-try:
-    from telegram import __version_info__
-except ImportError:
-    __version_info__ = (0, 0, 0, 0, 0)  # type: ignore[assignment]
-
-if __version_info__ < (20, 0, 0, "alpha", 1):
-    raise RuntimeError(
-        f"This example is not compatible with your current PTB version {TG_VER}. To view the "
-        f"{TG_VER} version of this example, "
-        f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
-    )
-from telegram import ForceReply, Update
 from telegram.ext import (
     Application,
-    CommandHandler,
     ContextTypes,
+    CommandHandler,
     MessageHandler,
     filters,
 )
 
-# Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+import interface.state as state
+
+from interface.bot_common import Context
+from interface.user_context import UserContext
 
 
-# Define a few command handlers. These usually take the two arguments update and
-# context.
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
-        reply_markup=ForceReply(selective=True),
-    )
+class Bot:
+    def __init__(self):
+        self.user_contexts: t.Dict[int, UserContext] = {}
 
+    def get_user_context(self, user: telegram.User) -> UserContext:
+        if user.id not in self.user_contexts:
+            self.user_contexts[user.id] = UserContext()
+        return self.user_contexts[user.id]
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /help is issued."""
-    await update.message.reply_text("Help!")
+    async def on_decide(
+        self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        if user is None:
+            return
+        logging.info(f"Handle command /decide from user {user}")
+        await self.get_user_context(user).on_command(
+            Context(update, context), state.DecideCommandState()
+        )
 
+    async def on_inplace(
+        self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        if user is None:
+            return
+        logging.info(f"Handle command /inplace from user {user}")
+        await self.get_user_context(user).on_command(
+            Context(update, context), state.InPlaceCommandState()
+        )
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
-    await update.message.reply_text(update.message.text)
+    async def on_overall(
+        self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        if user is None:
+            return
+        logging.info(f"Handle command /overall from user {user}")
+        await self.get_user_context(user).on_command(
+            Context(update, context), state.OverallCommandState()
+        )
 
+    async def on_text(
+        self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        if user is None:
+            return
+        logging.info(f"Handle text from user {user}")
+        await self.get_user_context(user).on_text(Context(update, context))
 
-def main() -> None:
-    """Start the bot."""
-    # Create the Application and pass it your bot's token.
-    application = (
-        Application.builder()
-        .token("5774758008:AAFV36nguoQA0uJHnRObqo9vShFqRkxa6pk")
-        .build()
-    )
+    async def on_location(
+        self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        if user is None:
+            return
+        logging.info(
+            f"Handle location from user {user} {type(self.get_user_context(user).state)}"
+        )
+        await self.get_user_context(user).on_location(Context(update, context))
 
-    # on different commands - answer in Telegram
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-
-    # on non command i.e message - echo the message on Telegram
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
-
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling()
-
-
-if __name__ == "__main__":
-    main()
+    def bind_with_application(self, application: Application) -> None:
+        application.add_handler(CommandHandler("decide", self.on_decide))
+        application.add_handler(CommandHandler("inplace", self.on_inplace))
+        application.add_handler(CommandHandler("overall", self.on_overall))
+        application.add_handler(MessageHandler(filters.TEXT, self.on_text))
+        application.add_handler(MessageHandler(filters.LOCATION, self.on_location))
