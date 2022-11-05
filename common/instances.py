@@ -13,6 +13,7 @@ InstanceId = str
 
 
 class TransportKind(Enum):
+    UNKNOWN = "unkonwn"
     BUS = "bus"
     TRAMWAY = "tramway"
     # TODO: Add all
@@ -48,3 +49,18 @@ class RentalPoint:
     coords: Coordinates
     id: InstanceId
     kind: RentalKind
+
+
+Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
+
+
+@dataclass
+class EntityDescription:
+    # TODO: Add common information about place - bus stop, store, ... (as strings)
+    ...
+
+
+@dataclass
+class LocationDescription:
+    # TODO: Add common information about location (city, ) (as strings)
+    ...
