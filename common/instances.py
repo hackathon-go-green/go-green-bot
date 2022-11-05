@@ -5,11 +5,15 @@ from dataclasses import dataclass
 
 
 # TODO: Choose better types
-Coordinates = str
+@dataclass
+class Coordinates:
+    lat: float
+    lon: float
+
 
 Distance = float
 
-InstanceId = str
+InstanceId = int
 
 
 class TransportKind(Enum):
@@ -43,12 +47,19 @@ class Restaraunt:
     has_vegan_options: bool
     has_vegeterian_options: bool
 
+    def __lt__(self, other):
+        return self.rank() < other.rank()
+
+    def rank(self):
+        return self.is_bio + self.is_chain + self.is_vegan \
+               + self.is_vegeterian + self.has_vegan_options + self.has_vegeterian_options
+
 
 @dataclass
 class RentalPoint:
     coords: Coordinates
     id: InstanceId
-    kind: RentalKind
+    kind: RentalKind = RentalKind.BIKE
 
 
 Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
@@ -56,8 +67,11 @@ Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
 
 @dataclass
 class Location:
-    # TODO: Add location features
-    ...
+    coord: Coordinates
+
+    def __str__(self):
+        return "Lat: {}, Lon: {}".format(self.coord.lat, self.coord.lon)
+
 
 
 @dataclass
@@ -68,6 +82,11 @@ class EntityDescription:
 
 @dataclass
 class LocationDescription:
+    desc: str = "Location description"
+
+    def __str__(self):
+        return self.desc
+
     # TODO: Add common information about location (city, ) (as strings)
     ...
 
