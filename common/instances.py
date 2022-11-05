@@ -3,7 +3,12 @@ import typing as t
 from enum import Enum
 from dataclasses import dataclass
 
+
+# TODO: Choose better types
 Coordinates = str
+
+Distance = float
+
 InstanceId = str
 
 
