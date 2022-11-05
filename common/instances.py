@@ -55,6 +55,12 @@ Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
 
 
 @dataclass
+class Location:
+    # TODO: Add location features
+    ...
+
+
+@dataclass
 class EntityDescription:
     # TODO: Add common information about place - bus stop, store, ... (as strings)
     ...
@@ -63,4 +69,10 @@ class EntityDescription:
 @dataclass
 class LocationDescription:
     # TODO: Add common information about location (city, ) (as strings)
+    ...
+
+
+@dataclass
+class LocationPreferences:
+    # TODO Add some preferences like type, ...
     ...
