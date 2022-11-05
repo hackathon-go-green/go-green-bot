@@ -6,9 +6,16 @@ from dataclasses import dataclass
 Coordinates = str
 InstanceId = str
 
+
 class TransportKind(Enum):
     BUS = "bus"
     TRAMWAY = "tramway"
+    # TODO: Add all
+
+
+class RentalKind(Enum):
+    BIKE = "bike"
+    SCOOTER = "scooter"
     # TODO: Add all
 
 
@@ -17,6 +24,7 @@ class TransportStop:
     coords: Coordinates
     id: InstanceId
     kind: TransportKind
+
 
 @dataclass
 class Restaraunt:
@@ -28,3 +36,10 @@ class Restaraunt:
     is_vegeterian: bool
     has_vegan_options: bool
     has_vegeterian_options: bool
+
+
+@dataclass
+class RentalPoint:
+    coords: Coordinates
+    id: InstanceId
+    kind: RentalKind
