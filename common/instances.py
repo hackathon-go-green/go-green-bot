@@ -56,6 +56,8 @@ Entity = t.Union[TransportStop, Restaraunt, RentalPoint]
 
 @dataclass
 class Location:
+    center: Coordinates
+    radius: Distance
     # TODO: Add location features
     ...
 

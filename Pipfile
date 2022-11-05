@@ -4,6 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+telegram = "*"
+python-telegram-bot = "*"
+tornado = "*"
+uvicorn = "*"
+starlette = "*"
 
 [dev-packages]
 black = "*"
