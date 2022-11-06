@@ -5,7 +5,11 @@ import telegram
 
 import interface.config as config
 
-from common.instances import Coordinates
+from common.instances import (
+    Coordinates,
+    EntityType,
+    EntityPreferences,
+)
 from interface.strings import BotString
 from interface.bot_common import (
     Context,
@@ -16,6 +20,7 @@ from interface.bot_common import (
     make_inplace_response,
     markup_with_location,
     markup_distance,
+    markup_entity_kind,
 )
 
 
@@ -111,17 +116,18 @@ class OverallCommandState(State):
                 reply_markup=markup_with_location(),
             )
             return self
-        text = context.update.message.text
-        try:
-            self.radius = float(text)
-            await make_overall_response(context, self.location, self.radius)
-            return None
-        except ValueError:
+
+        radius_repr = context.update.message.text
+        radius_validation = validate_radius(radius_repr)
+        if radius_validation is not None:
             await context.update.message.reply_html(
-                BotString.INVALID_RADIUS_FORMAT.value,
-                reply_markup=markup_distance(),
+                radius_validation, reply_markup=markup_distance()
             )
             return self
+
+        self.radius = float(radius_repr)
+        await make_overall_response(context, self.location, self.radius)
+        return None
 
     async def on_location(self, context: Context) -> t.Optional["State"]:
         if self.location is not None:
@@ -140,6 +146,7 @@ class InPlaceCommandState(State):
     def __init__(self):
         self.location: t.Optional[Coordinates] = None
         self.radius: t.Optional[float] = None
+        self.entity_kind: t.Optional[EntityType] = None
 
     async def on_init(self, context: Context) -> None:
         await context.update.message.reply_html(
@@ -153,22 +160,47 @@ class InPlaceCommandState(State):
                 reply_markup=markup_with_location(),
             )
             return self
-        text = context.update.message.text
-        try:
-            self.radius = float(text)
-            await make_inplace_response(context, self.location, self.radius)
-            return None
-        except ValueError:
+
+        elif self.radius is None:
+            radius_repr = context.update.message.text
+            radius_validation = validate_radius(radius_repr)
+            if radius_validation is not None:
+                await context.update.message.reply_html(
+                    radius_validation, reply_markup=markup_distance()
+                )
+                return self
+            self.radius = float(radius_repr)
             await context.update.message.reply_html(
-                BotString.INVALID_RADIUS_FORMAT.value,
-                reply_markup=markup_distance(),
+                BotString.INPLACE_ENTITY_KIND.value, reply_markup=markup_entity_kind()
             )
             return self
 
+        else:
+            entity_kind_repr = context.update.message.text
+
+            kind_by_name = {
+                EntityType.TRANSPORT.value: EntityType.TRANSPORT,
+                EntityType.RESTARAUNT.value: EntityType.RESTARAUNT,
+                EntityType.RENTAL_POINT.value: EntityType.RENTAL_POINT,
+            }
+
+            if entity_kind_repr not in kind_by_name:
+                await context.update.message.reply_html(
+                    BotString.INVALID_ENTITY_KIND.value,
+                    reply_markup=markup_entity_kind(),
+                )
+                return self
+
+            self.entity_kind = kind_by_name[entity_kind_repr]
+
+            await make_inplace_response(
+                context, self.location, self.radius, EntityPreferences(self.entity_kind)
+            )
+            return None
+
     async def on_location(self, context: Context) -> t.Optional["State"]:
         if self.location is not None:
-            await self.on_init(context)
-            return self
+            return
         update_location = context.update.message.location
         self.location = Coordinates(update_location.latitude, update_location.longitude)
         await context.update.message.reply_html(

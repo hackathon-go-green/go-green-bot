@@ -11,6 +11,7 @@ from telegram.ext import (
 )
 
 import interface.state as state
+import database.api
 
 from interface.bot_common import (
     Context,
@@ -21,8 +22,9 @@ from interface.strings import BotString
 
 
 class Bot:
-    def __init__(self):
+    def __init__(self, database_api: database.api.DatabaseApi):
         self.user_contexts: t.Dict[int, UserContext] = {}
+        self.database_api = database_api
 
     def get_user_context(self, user: telegram.User) -> UserContext:
         if user.id not in self.user_contexts:
@@ -55,7 +57,7 @@ class Bot:
             return
         logging.info(f"Handle command /decide from user {user}")
         await self.get_user_context(user).on_command(
-            Context(update, context), state.DecideCommandState()
+            Context(update, context, self.database_api), state.DecideCommandState()
         )
 
     async def on_inplace(
@@ -66,7 +68,7 @@ class Bot:
             return
         logging.info(f"Handle command /inplace from user {user}")
         await self.get_user_context(user).on_command(
-            Context(update, context), state.InPlaceCommandState()
+            Context(update, context, self.database_api), state.InPlaceCommandState()
         )
 
     async def on_overall(
@@ -77,7 +79,7 @@ class Bot:
             return
         logging.info(f"Handle command /overall from user {user}")
         await self.get_user_context(user).on_command(
-            Context(update, context), state.OverallCommandState()
+            Context(update, context, self.database_api), state.OverallCommandState()
         )
 
     async def on_text(
@@ -87,7 +89,9 @@ class Bot:
         if user is None:
             return
         logging.info(f"Handle text from user {user}")
-        await self.get_user_context(user).on_text(Context(update, context))
+        await self.get_user_context(user).on_text(
+            Context(update, context, self.database_api)
+        )
 
     async def on_location(
         self, update: telegram.Update, context: ContextTypes.DEFAULT_TYPE
@@ -98,7 +102,9 @@ class Bot:
         logging.info(
             f"Handle location from user {user} {type(self.get_user_context(user).state)}"
         )
-        await self.get_user_context(user).on_location(Context(update, context))
+        await self.get_user_context(user).on_location(
+            Context(update, context, self.database_api)
+        )
 
     def bind_with_application(self, application: Application) -> None:
         application.add_handler(CommandHandler("start", self.on_start))
