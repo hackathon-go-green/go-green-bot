@@ -57,7 +57,7 @@ My ✨ <i>sustainability</i> ✨ faries 🧚 will voluntary select the best plac
 
     START = """Hello, {}! 👋
 
-I'm a bot that helps you reduce your carbon footprint in your daily life. I know everything about all the restaurants, grocery stores, and bus stops around the world (and so much more!)
+I'm a Toby! A bot that helps you reduce your carbon footprint in your daily life. I know everything about all the restaurants, grocery stores, and bus stops around the world (and so much more!)
 
 
 🧭 /decide - Helps you choose the most sustainable region to travel to or to live in
