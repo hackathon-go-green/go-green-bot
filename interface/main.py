@@ -20,6 +20,7 @@ from telegram.ext import (
 )
 
 import interface.bot
+import database.api
 
 
 logging.basicConfig(
@@ -33,7 +34,8 @@ def main() -> None:
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(config.TEST_TOKEN).build()
 
-    bot_logic = interface.bot.Bot()
+    database_api = None
+    bot_logic = interface.bot.Bot(database_api)
 
     bot_logic.bind_with_application(application)
     logging.info("Run pooling")

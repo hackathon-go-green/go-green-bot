@@ -17,6 +17,10 @@ class BotString(enum.Enum):
     INVALID_RADIUS_TOO_BIG = (
         f"😔 Radius is too big, should be no more than {config.MAX_RADIUS} km"
     )
+    INVALID_ENTITY_KIND = """😔 <b>These</b> amazing places are not yet discovered by our team :(
+
+Try out something from the given options!
+"""
 
     DECISION_LOCATION = """📍 <b>Send location!</b>
 
@@ -43,6 +47,10 @@ We will share with you the most sustainable places: farmer markets, cafes which 
     INPLACE_RADIUS = """🌐 <b> Send a radius </b> (in kilometers)
         
 Radius in which you want to find new places
+"""
+    INPLACE_ENTITY_KIND = """🧭 <b> Select specific type of place </b>
+
+Our ✨ <i>sustainability</i> ✨ faries 🧚 will voluntary select the best places of that kind!
 """
 
     SHARE_LOCATION = "📍 Share Current Location"
