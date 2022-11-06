@@ -45,21 +45,20 @@ class Restaraunt:
     is_vegan: bool
     is_vegeterian: bool
     has_vegan_options: bool
-    has_vegeterian_options: bool
 
     def __lt__(self, other):
         return self.rank() < other.rank()
 
     def rank(self):
-        return self.is_bio + self.is_chain + self.is_vegan \
-               + self.is_vegeterian + self.has_vegan_options + self.has_vegeterian_options
+        return self.is_bio - self.is_chain + self.is_vegan \
+               + self.is_vegeterian + self.has_vegan_options
 
 
 @dataclass
 class RentalPoint:
     coords: Coordinates
     id: InstanceId
-    kind: RentalKind = RentalKind.BIKE
+    kind: RentalKind
 
 
 class EntityType(Enum):
@@ -82,23 +81,28 @@ class Location:
 
 @dataclass
 class EntityDescription:
+    desc: str = "Entity score is: "
+    score: float = 0
+
+    def __str__(self):
+        return self.desc.format(self.score)
+
     # TODO: Add common information about place - bus stop, store, ... (as strings)
-    ...
+
 
 
 @dataclass
 class LocationDescription:
-    desc: str = "Location description"
+    desc: str = "Location score is: "
+    score: float = 0
 
     def __str__(self):
-        return self.desc
+        return self.desc.format(self.score)
 
     # TODO: Add common information about location (city, ) (as strings)
-    ...
+
 
 
 @dataclass
 class EntityPreferences:
     entity_type: EntityType
-    # TODO Add some preferences like type, ...
-    ...
