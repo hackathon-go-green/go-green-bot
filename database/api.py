@@ -60,16 +60,16 @@ class DatabaseApi:
         return res
 
     def evaluate_region(self, coords: instaces.Coordinates,
-                        radius: instaces.Distance) -> t.Tuple[float, instaces.LocationDescription]:
+                        radius: instaces.Distance) -> instaces.LocationDescription:
         close_obj = self.get_all_entities(coords, radius)
         restaurants = [value for value in close_obj if type(value) == instaces.Restaraunt]
         stops = [value for value in close_obj if type(value) == instaces.TransportStop]
         rent_points = [value for value in close_obj if type(value) == instaces.RentalPoint]
         #   TODO: res = evaluate_area(radius, restaurants, stops, rent_points)
-        return 0, instaces.LocationDescription("Evaluation of region")
+        return instaces.LocationDescription()
 
     def evaluate_regions(self, rect: Rectangle):
-        all_regions: t.List[t.Tuple[instaces.Coordinates, float, instaces.LocationDescription]] = []
+        all_regions: t.List[t.Tuple[instaces.Coordinates, instaces.LocationDescription]] = []
         width = haversine((rect.lt.lat, rect.lt.lon), (rect.lt.lat, rect.rb.lon))
         height = haversine((rect.lt.lat, rect.lt.lon), (rect.rb.lat, rect.lt.lon))
         radius = max(height, width) / (2 * rect.division_ratio)
@@ -83,7 +83,7 @@ class DatabaseApi:
             for j in range(rect.division_ratio):
                 cur = inverse_haversine(cur, step_right, Direction.WEST)
                 tmp = self.evaluate_region(instaces.Coordinates(*cur), radius)
-                all_regions.append((instaces.Coordinates(*cur), tmp[0], tmp[1]))
+                all_regions.append((instaces.Coordinates(*cur), tmp))
 
         all_regions.sort(key=lambda x: x[1])
         return all_regions
@@ -95,9 +95,9 @@ class DatabaseApi:
             division_ratio: int,
     ) -> t.List[t.Tuple[instaces.Location, instaces.LocationDescription]]:
         lt = inverse_haversine((coords.lat, coords.lon), radius, Direction.NORTH)
-        lt = inverse_haversine((lt.lat, lt.lon), radius, Direction.WEST)
+        lt = inverse_haversine(lt, radius, Direction.WEST)
         rb = inverse_haversine((coords.lat, coords.lon), radius, Direction.SOUTH)
-        rb = inverse_haversine((rb.lat, rb.lon), radius, Direction.EAST)
+        rb = inverse_haversine(rb, radius, Direction.EAST)
         rect = Rectangle(lt, rb, division_ratio)
         return [(instaces.Location(i[0], radius), i[2]) for i in self.evaluate_regions(rect)[:n_max_results]]
 
@@ -116,11 +116,11 @@ def get_best_entites(
         preferences: instaces.EntityPreferences,
 ) -> t.List[t.Tuple[instaces.Entity, instaces.EntityDescription]]:
     close_obj = self.get_all_entities(coords, radius)
-    if preferences == instaces.EntityType.RESTARAUNT:
+    if preferences.entity_type == instaces.EntityType.RESTARAUNT:
         restaurants = [value for value in close_obj if type(value) == instaces.Restaraunt].sort()
         return restaurants[:n_max_results]
-    elif preferences == instaces.EntityType.RENTAL_POINT:
+    elif preferences.entity_type == instaces.EntityType.RENTAL_POINT:
         return [value for value in close_obj if type(value) == instaces.TransportStop][:n_max_results]
-    elif preferences == instaces.EntityType.TRANSPORT:
+    elif preferences.entity_type == instaces.EntityType.TRANSPORT:
         return [value for value in close_obj if type(value) == instaces.RentalPoint][:n_max_results]
     return []
