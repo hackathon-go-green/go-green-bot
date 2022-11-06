@@ -85,7 +85,7 @@ async def make_decide_response(
         location, description = location_and_desc
         await context.update.message.reply_html(
             BotString.TOP_LOCATION.value.format(
-                location_rank + 1, description.score, description.desc
+                location_rank + 1, f"{description.score:.2f}", str(description)
             )
         )
         await context.update.message.reply_location(
@@ -99,7 +99,7 @@ async def make_overall_response(
     description = context.database_api.evaluate_region(coordinates, radius)
 
     await context.update.message.reply_html(
-        BotString.REGION_DESCRIPTION.value.format(description.score, description.desc)
+        BotString.REGION_DESCRIPTION.value.format(description.score, str(description))
     )
 
 
@@ -116,9 +116,9 @@ async def make_inplace_response(
         await context.update.message.reply_html(
             BotString.TOP_ENTITY.value.format(
                 entity.name(),
-                description.score,
+                f"{description.score:.2f}",
                 make_entity_description(entity),
-                description.desc,
+                str(description),
             )
         )
         await context.update.message.reply_location(
