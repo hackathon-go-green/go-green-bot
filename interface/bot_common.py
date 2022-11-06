@@ -46,21 +46,29 @@ def make_entity_description(entity: Entity) -> str:
         rest: Restaraunt = entity
 
         veganity = (
-            "🥗 Vegan\n"
+            BotString.ENTITY_DESC_VEGAN.value
             if rest.is_vegan
             else (
-                "🥛🥚 Vegeterian\n"
+                BotString.ENTITY_DESC_VEGETERIAN.value
                 if rest.is_vegeterian
-                else ("🐣 Has vegan options\n" if rest.has_vegan_options else "")
+                else (
+                    BotString.ENTITY_DESC_VEG_OPTIONS.value
+                    if rest.has_vegan_options
+                    else ""
+                )
             )
         )
 
         is_bio = (
-            "Uses local products (bio)"
+            BotString.ENTITY_DESC_HAS_VEG_OPTIONS.value
             if rest.is_bio
-            else "Does not use local products (not bio)"
+            else BotString.ENTITY_DESC_NO_VEG_OPTIONS.value
         )
-        is_chain = "Is not a chain" if rest.is_chain else "Chain restaurant"
+        is_chain = (
+            BotString.ENTITY_IS_A_CHAIN.value
+            if rest.is_chain
+            else BotString.ENTITY_IS_NOT_A_CHAIN.value
+        )
 
         return f"""  - {is_bio}
   - {is_chain}

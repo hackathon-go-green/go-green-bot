@@ -9,8 +9,8 @@ class BotString(enum.Enum):
     COMMAND_DESC_OVERALL = "Get area description"
     COMMAND_DESC_INPLACE = "Show places nearby"
 
-    INVALID_LOCATION_FORMAT = "ℹ️ Invalid location format, please select corresponding button on your input panel"
-    INVALID_RADIUS_FORMAT = "ℹ️ Invalid radius format, send a number like '0.7'"
+    INVALID_LOCATION_FORMAT = "⚠️ Invalid location format, please select corresponding button on your input panel"
+    INVALID_RADIUS_FORMAT = "⚠️ Invalid radius format, send a number like '0.7'"
     INVALID_RADIUS_TOO_SMALL = (
         f"😞 Radius is too small, should be at least {config.MIN_RADIUS} km"
     )
@@ -88,9 +88,20 @@ This is a [some description]
 {}
 """
 
-    TOP_ENTITY = """<b>Choice 🍃 {}</b>
+    TOP_ENTITY = """<b>🍃 {}</b>
 <i>Score: {}/10</i>
 <b>***</b>
 
+<b>Summary:</b>
 {}
+
+<i>{}</i>
 """
+
+    ENTITY_DESC_VEGAN = "🥗 Vegan"
+    ENTITY_DESC_VEGETERIAN = "🥛🥚 Vegeterian"
+    ENTITY_DESC_VEG_OPTIONS = "🐣 Has vegan options"
+    ENTITY_DESC_HAS_VEG_OPTIONS = "Uses local products (bio)"
+    ENTITY_DESC_NO_VEG_OPTIONS = "Does not use local products (not bio)"
+    ENTITY_IS_NOT_A_CHAIN = "Is not a chain"
+    ENTITY_IS_A_CHAIN = "Chain restaurant"
