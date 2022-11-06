@@ -10,6 +10,10 @@ from common.instances import (
     Distance,
     EntityPreferences,
     EntityType,
+    Entity,
+    TransportStop,
+    RentalPoint,
+    Restaraunt,
 )
 from interface.strings import BotString
 
@@ -29,6 +33,41 @@ async def make_invalid_distance_response(context: Context) -> None:
     await context.update.message.reply_text("Invalid float format")
 
 
+def make_entity_description(entity: Entity) -> str:
+    if isinstance(entity, TransportStop):
+        transport: TransportStop = entity
+        return f"""<b>Type:</b> {transport.kind.value}"""
+
+    elif isinstance(entity, RentalPoint):
+        rental: RentalPoint = entity
+        return f"""<b>Type:</b> {rental.kind.value}"""
+
+    elif isinstance(entity, Restaraunt):
+        rest: Restaraunt = entity
+
+        veganity = (
+            "🥗 Vegan\n"
+            if rest.is_vegan
+            else (
+                "🥛🥚 Vegeterian\n"
+                if rest.is_vegeterian
+                else ("🐣 Has vegan options\n" if rest.has_vegan_options else "")
+            )
+        )
+
+        is_bio = (
+            "Uses local products (bio)"
+            if rest.is_bio
+            else "Does not use local products (not bio)"
+        )
+        is_chain = "Is not a chain" if rest.is_chain else "Chain restaurant"
+
+        return f"""  - {is_bio}
+  - {is_chain}
+  - {veganity}
+"""
+
+
 async def make_decide_response(
     context: Context, coordinates: Coordinates, radius: Distance
 ) -> None:
@@ -45,11 +84,6 @@ async def make_decide_response(
             location.coord.lat, location.coord.lon
         )
 
-    await context.update.message.reply_text(
-        f"Do you actually want to go outside of your home? From {coordinates}, {radius}",
-        reply_markup=markup_helpful(),
-    )
-
 
 async def make_overall_response(
     context: Context, coordinates: Coordinates, radius: Distance
@@ -58,11 +92,6 @@ async def make_overall_response(
 
     await context.update.message.reply_html(
         BotString.REGION_DESCRIPTION.value.format(description.score, description.desc)
-    )
-
-    await context.update.message.reply_text(
-        f"Do you actually want to go there? This shithole?? {coordinates}, {radius}",
-        reply_markup=markup_helpful(),
     )
 
 
@@ -78,17 +107,15 @@ async def make_inplace_response(
         entity, description = entity_description
         await context.update.message.reply_html(
             BotString.TOP_ENTITY.value.format(
-                entity_rank + 1, description.score, description.desc
+                entity.name(),
+                description.score,
+                make_entity_description(entity),
+                description.desc,
             )
         )
         await context.update.message.reply_location(
             entity.coords.lat, entity.coords.lon
         )
-
-    await context.update.message.reply_text(
-        f"Go somewhere from {coordinates}, {radius}, {preferences}",
-        reply_markup=markup_helpful(),
-    )
 
 
 def markup_with_location() -> telegram.ReplyKeyboardMarkup:
