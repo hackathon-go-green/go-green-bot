@@ -32,7 +32,19 @@ async def make_invalid_distance_response(context: Context) -> None:
 async def make_decide_response(
     context: Context, coordinates: Coordinates, radius: Distance
 ) -> None:
-    # TODO
+    for location_rank, location_and_desc in enumerate(
+        context.database_api.get_best_locations(coordinates, radius, 5, 10)
+    ):
+        location, description = location_and_desc
+        await context.update.message.reply_html(
+            BotString.TOP_LOCATION.value.format(
+                location_rank + 1, description.score, description.desc
+            )
+        )
+        await context.update.message.reply_location(
+            location.coord.lat, location.coord.lon
+        )
+
     await context.update.message.reply_text(
         f"Do you actually want to go outside of your home? From {coordinates}, {radius}",
         reply_markup=markup_helpful(),
@@ -42,9 +54,11 @@ async def make_decide_response(
 async def make_overall_response(
     context: Context, coordinates: Coordinates, radius: Distance
 ) -> None:
-    # TODO
+    description = context.database_api.evaluate_region(coordinates, radius)
 
-    context.database_api.evaluate_region(coordinates, radius)
+    await context.update.message.reply_html(
+        BotString.REGION_DESCRIPTION.value.format(description.score, description.desc)
+    )
 
     await context.update.message.reply_text(
         f"Do you actually want to go there? This shithole?? {coordinates}, {radius}",
@@ -58,7 +72,19 @@ async def make_inplace_response(
     radius: Distance,
     preferences: EntityPreferences,
 ) -> None:
-    # TODO
+    for entity_rank, entity_description in enumerate(
+        context.database_api.get_best_entites(coordinates, radius, 5, preferences)
+    ):
+        entity, description = entity_description
+        await context.update.message.reply_html(
+            BotString.TOP_ENTITY.value.format(
+                entity_rank + 1, description.score, description.desc
+            )
+        )
+        await context.update.message.reply_location(
+            entity.coords.lat, entity.coords.lon
+        )
+
     await context.update.message.reply_text(
         f"Go somewhere from {coordinates}, {radius}, {preferences}",
         reply_markup=markup_helpful(),

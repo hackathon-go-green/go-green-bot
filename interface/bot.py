@@ -112,8 +112,10 @@ class Bot:
         application.add_handler(CommandHandler("decide", self.on_decide))
         application.add_handler(CommandHandler("inplace", self.on_inplace))
         application.add_handler(CommandHandler("overall", self.on_overall))
+        application.add_handler(MessageHandler(filters.TEXT, self.on_text))
+        application.add_handler(MessageHandler(filters.LOCATION, self.on_location))
 
-        assert application.bot.set_my_commands(
+        application.bot.set_my_commands(
             [
                 ("help", BotString.COMMAND_DESC_HELP.value),
                 ("decide", BotString.COMMAND_DESC_DECIDE.value),
@@ -121,8 +123,5 @@ class Bot:
                 ("overall", BotString.COMMAND_DESC_OVERALL.value),
             ]
         )
-
-        application.add_handler(MessageHandler(filters.TEXT, self.on_text))
-        application.add_handler(MessageHandler(filters.LOCATION, self.on_location))
 
         logging.info("Binded to application")

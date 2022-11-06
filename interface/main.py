@@ -22,6 +22,8 @@ from telegram.ext import (
 import interface.bot
 import database.api
 
+from pathlib import Path
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -34,7 +36,7 @@ def main() -> None:
     # Create the Application and pass it your bot's token.
     application = Application.builder().token(config.TEST_TOKEN).build()
 
-    database_api = None
+    database_api = database.api.DatabaseApi(Path("database"))
     bot_logic = interface.bot.Bot(database_api)
 
     bot_logic.bind_with_application(application)

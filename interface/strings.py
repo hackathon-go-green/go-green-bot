@@ -73,3 +73,24 @@ This is a [some description]
 
 🏃🏾‍♀️ /inplace - Learn about the places to go out that care most about the environment near a given location
 """
+
+    TOP_LOCATION = """<b>Choice 🍃 {}</b>
+<i>Score: {}/10</i>
+<b>***</b>
+
+{}
+"""
+
+    REGION_DESCRIPTION = """🍃
+<i>Score: {}/10</i>
+<b>***</b>
+
+{}
+"""
+
+    TOP_ENTITY = """<b>Choice 🍃 {}</b>
+<i>Score: {}/10</i>
+<b>***</b>
+
+{}
+"""
