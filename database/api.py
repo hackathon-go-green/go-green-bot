@@ -10,8 +10,8 @@ from dataclasses import dataclass
 
 @dataclass
 class Rectangle:
-    lt: instaces.Coordinates
-    rb: instaces.Coordinates
+    lt: t.Tuple[float, float]
+    rb: t.Tuple[float, float]
     division_ratio: int
 
 
@@ -70,8 +70,8 @@ class DatabaseApi:
 
     def evaluate_regions(self, rect: Rectangle):
         all_regions: t.List[t.Tuple[instaces.Coordinates, instaces.LocationDescription]] = []
-        width = haversine((rect.lt.lat, rect.lt.lon), (rect.lt.lat, rect.rb.lon))
-        height = haversine((rect.lt.lat, rect.lt.lon), (rect.rb.lat, rect.lt.lon))
+        width = haversine(rect.lt, (rect.lt[0], rect.rb[1]))
+        height = haversine(rect.lt, (rect.rb[0], rect.lt[1]))
         radius = max(height, width) / (2 * rect.division_ratio)
         step_right = width / rect.division_ratio
         step_down = height / rect.division_ratio
@@ -85,7 +85,7 @@ class DatabaseApi:
                 tmp = self.evaluate_region(instaces.Coordinates(*cur), radius)
                 all_regions.append((instaces.Coordinates(*cur), tmp))
 
-        all_regions.sort(key=lambda x: x[1])
+        all_regions.sort(key=lambda x: x[1].score)
         return all_regions
 
     def get_best_locations(
@@ -99,7 +99,7 @@ class DatabaseApi:
         rb = inverse_haversine((coords.lat, coords.lon), radius, Direction.SOUTH)
         rb = inverse_haversine(rb, radius, Direction.EAST)
         rect = Rectangle(lt, rb, division_ratio)
-        return [(instaces.Location(i[0], radius), i[2]) for i in self.evaluate_regions(rect)[:n_max_results]]
+        return [(instaces.Location(i[0], radius), i[1]) for i in self.evaluate_regions(rect)[:n_max_results]]
 
 
 def get_overall_about_location(
