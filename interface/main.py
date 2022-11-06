@@ -1,5 +1,6 @@
 import logging
 import interface.config as config
+import telegram
 
 from telegram import __version__ as TG_VER
 
@@ -35,8 +36,7 @@ def main() -> None:
     bot_logic = interface.bot.Bot()
 
     bot_logic.bind_with_application(application)
-
-    # Run the bot until the user presses Ctrl-C
+    logging.info("Run pooling")
     application.run_polling()
 
 

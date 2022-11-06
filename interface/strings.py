@@ -1,19 +1,67 @@
 import enum
 
+import interface.config as config
+
 
 class BotString(enum.Enum):
-    INVALID_LOCATION_FORMAT = "Invalid location format, please select corresponding button on your input panel"
-    INVALID_RADIUS_FORMAT = "Invalid radius format, send a number like '0.7'"
+    COMMAND_DESC_HELP = "Get help"
+    COMMAND_DESC_DECIDE = "Find dream destination"
+    COMMAND_DESC_OVERALL = "Get area description"
+    COMMAND_DESC_INPLACE = "Show places nearby"
 
-    DECISION_LOCATION = "Send location where you want to go!"
-    DECISION_RADIUS = (
-        "Send a radius (in kilometers) where you are considering traveling"
+    INVALID_LOCATION_FORMAT = "ℹ️ Invalid location format, please select corresponding button on your input panel"
+    INVALID_RADIUS_FORMAT = "ℹ️ Invalid radius format, send a number like '0.7'"
+    INVALID_RADIUS_TOO_SMALL = (
+        f"😞 Radius is too small, should be at least {config.MIN_RADIUS} km"
+    )
+    INVALID_RADIUS_TOO_BIG = (
+        f"😔 Radius is too big, should be no more than {config.MAX_RADIUS} km"
     )
 
-    OVERALL_LOCATION = "Send any location!"
-    OVERALL_RADIUS = (
-        "Send the radius (in kilometers) of the location you want to know about"
-    )
+    DECISION_LOCATION = """📍 <b>Send location!</b>
 
-    INPLACE_LOCATION = "Send the location you want to explore"
-    INPLACE_RADIUS = "Send the radius (in kilometers) in which you can walk"
+We will analyse this area and tell you which regions of this location are most sustainable!
+"""
+    DECISION_RADIUS = """🌐 <b> Send a radius </b> (in kilometers)
+        
+Tell us in which radius do you consider traveling
+"""
+
+    OVERALL_LOCATION = """📍 <b>Send any location!</b>
+
+In this location we will get all information about sustainability of restaurants, grocery shops, public transport stops and bike or scooter renting services
+"""
+    OVERALL_RADIUS = """🌐 <b> Send a radius </b> (in kilometers)
+        
+The radius of the area you want a detailed report on
+"""
+
+    INPLACE_LOCATION = """📍 <b>Send location to explore!</b>
+
+We will share with you the most sustainable places: farmer markets, cafes which are using local production and so on
+"""
+    INPLACE_RADIUS = """🌐 <b> Send a radius </b> (in kilometers)
+        
+Radius in which you want to find new places
+"""
+
+    SHARE_LOCATION = "📍 Share Current Location"
+
+    START = """Hello, {}! 👋
+
+This is a [some description]
+
+
+🧭 /decide - Helps you choose the most sustainable region to travel or to live
+
+🍀 /overall - Get to know some location in terms of sustainability
+
+🏃🏾‍♀️ /inplace - Learn about the places to go out that care most about the environment near a given location
+"""
+
+    HELP = """🧭 /decide - Helps you choose the most sustainable region to travel or to live
+
+🍀 /overall - Get to know some location in terms of sustainability
+
+🏃🏾‍♀️ /inplace - Learn about the places to go out that care most about the environment near a given location
+"""
