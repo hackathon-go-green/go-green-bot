@@ -2,10 +2,10 @@ import typing as t
 import csv
 
 from haversine import inverse_haversine, Direction, haversine
+from dataclasses import dataclass
+from pathlib import Path
 
 import common.instances as instaces
-
-from dataclasses import dataclass
 
 
 @dataclass
@@ -38,16 +38,16 @@ def construct_with_coords(
 
 
 class DatabaseApi:
-    data_paths = {"RentalPoints": "./tables/RentalPoints.csv",
-                  "Restaurants": "./tables/Restaurants.csv",
-                  "TransportStops": "./tables/TransportStops.csv"}
+    data_paths: t.Dict[str, Path] = {"RentalPoints": Path("tables") / "RentalPoints.csv",
+                  "Restaurants": Path("tables") / "Restaurants.csv",
+                  "TransportStops": Path("tables") / "TransportStops.csv"}
     tables = {}
 
-    def __init__(self):
-        self.tables["RentalPoints"] = construct_with_coords(self.data_paths["RentalPoints"], instaces.RentalPoint)
-        self.tables["Restaurants"] = construct_with_coords(self.data_paths["Restaurants"], instaces.Restaraunt)
+    def __init__(self, root: Path):
+        self.tables["RentalPoints"] = construct_with_coords(root / self.data_paths["RentalPoints"], instaces.RentalPoint)
+        self.tables["Restaurants"] = construct_with_coords(root / self.data_paths["Restaurants"], instaces.Restaraunt)
         self.tables["Restaurants"].sort()
-        self.tables["TransportStops"] = construct_with_coords(self.data_paths["RentalPoints"], instaces.TransportStop)
+        self.tables["TransportStops"] = construct_with_coords(root / self.data_paths["RentalPoints"], instaces.TransportStop)
 
     def get_all_entities(
             self, coords: instaces.Coordinates, radius: instaces.Distance
