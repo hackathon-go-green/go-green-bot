@@ -17,15 +17,15 @@ InstanceId = int
 
 
 class TransportKind(Enum):
-    UNKNOWN = "unkonwn"
-    BUS = "bus"
-    TRAMWAY = "tramway"
+    UNKNOWN = "Unkonwn"
+    BUS = "Bus"
+    TRAMWAY = "Tramway"
     # TODO: Add all
 
 
 class RentalKind(Enum):
-    BIKE = "bike"
-    SCOOTER = "scooter"
+    BIKE = "Bike"
+    SCOOTER = "Scooter"
     # TODO: Add all
 
 
@@ -34,6 +34,9 @@ class TransportStop:
     coords: Coordinates
     id: InstanceId
     kind: TransportKind
+
+    def name(self) -> str:
+        return f"{self.kind.value} stop"
 
 
 @dataclass
@@ -45,6 +48,13 @@ class Restaraunt:
     is_vegan: bool
     is_vegeterian: bool
     has_vegan_options: bool
+    
+    def name(self) -> str:
+        if self.is_vegan:
+            return "Vegan restaurant"
+        if self.is_vegeterian:
+            return "Vegeterian restaurant"
+        return "Restaurant"
 
     def rank(self):
         bio = 1.5
@@ -123,6 +133,9 @@ class RentalPoint:
     id: InstanceId
     kind: RentalKind
 
+    def name(self) -> str:
+        return f"{self.kind.value} rental point"
+
 
 class EntityType(Enum):
     RESTARAUNT = "restaurant"
@@ -149,7 +162,6 @@ class EntityDescription:
 
     def __str__(self):
         return self.desc.format(self.score)
-
     # TODO: Add common information about place - bus stop, store, ... (as strings)
 
 
@@ -160,8 +172,6 @@ class LocationDescription:
 
     def __str__(self):
         return self.desc.format(self.score)
-
-    # TODO: Add common information about location (city, ) (as strings)
 
 
 @dataclass
