@@ -1,4 +1,4 @@
-# Tobi-Go-Green-Bot, Jackobs Hack project
+# Tobi Go Green Bot, Jackobs Hack project
 
 This is a telegram bot which will help you to find the most sustainable area for living and travelling.
 
