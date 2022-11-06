@@ -1,10 +1,10 @@
 import typing as t
 import csv
 
-from haversine import inverse_haversine, Direction
+from haversine import inverse_haversine, Direction, haversine
 
 import common.instances as instaces
-import haversine as hs
+
 from dataclasses import dataclass
 
 
@@ -22,20 +22,25 @@ def construct_with_coords(
     with open(filename, newline='') as f:
         reader = csv.reader(f, delimiter=',', quotechar='"')
         for row in reader:
-            flags = [bool(i) for i in row[2:]]
-            if flags is None:
-                res.append(instance(int(row[0]),
-                                    instaces.Coordinates(float(row[1]), float(row[2]))))
+            flags = [bool(i) for i in row[3:]]
+            coords = instaces.Coordinates(float(row[1]), float(row[2]))
+            id = int(row[0])
+            if instance is instaces.RentalPoint:
+                other = instaces.RentalKind.BIKE
+            elif instance is instaces.TransportStop:
+                other = instaces.TransportKind.BUS
+            if len(flags) == 0:
+                res.append(instance(coords, id, *(other,)))
             else:
-                res.append(instance(int(row[0]),
-                                    instaces.Coordinates(float(row[1]), float(row[2])), *flags))
+                id = int(row[0])
+                res.append(instance(coords, id, *flags))
     return res
 
 
 class DatabaseApi:
-    data_paths = {"RentalPoints": "./table/RentalPoints.csv",
-                  "Restaurants": "./table/Restaurants.csv",
-                  "TransportStops": "./table/TransportStops.csv"}
+    data_paths = {"RentalPoints": "./tables/RentalPoints.csv",
+                  "Restaurants": "./tables/Restaurants.csv",
+                  "TransportStops": "./tables/TransportStops.csv"}
     tables = {}
 
     def __init__(self):
@@ -50,7 +55,7 @@ class DatabaseApi:
         res = []
         for table in self.tables.values():
             for row in table:
-                if hs.haversine((coords.lat, coords.lon), (table.coords.lat, table.coords.lon)) <= radius:
+                if haversine((coords.lat, coords.lon), (row.coords.lat, row.coords.lon)) <= radius:
                     res.append(row)
         return res
 
@@ -61,12 +66,12 @@ class DatabaseApi:
         stops = [value for value in close_obj if type(value) == instaces.TransportStop]
         rent_points = [value for value in close_obj if type(value) == instaces.RentalPoint]
         #   TODO: res = evaluate_area(radius, restaurants, stops, rent_points)
-        return (0, instaces.LocationDescription("Evaluation of region"))
+        return 0, instaces.LocationDescription("Evaluation of region")
 
     def evaluate_regions(self, rect: Rectangle):
         all_regions: t.List[t.Tuple[instaces.Coordinates, float, instaces.LocationDescription]] = []
-        width = hs.haversine((rect.lt.lat, rect.lt.lon), (rect.lt.lat, rect.rb.lon))
-        height = hs.haversine((rect.lt.lat, rect.lt.lon), (rect.rb.lat, rect.lt.lon))
+        width = haversine((rect.lt.lat, rect.lt.lon), (rect.lt.lat, rect.rb.lon))
+        height = haversine((rect.lt.lat, rect.lt.lon), (rect.rb.lat, rect.lt.lon))
         radius = max(height, width) / (2 * rect.division_ratio)
         step_right = width / rect.division_ratio
         step_down = height / rect.division_ratio
@@ -94,7 +99,7 @@ class DatabaseApi:
         rb = inverse_haversine((coords.lat, coords.lon), radius, Direction.SOUTH)
         rb = inverse_haversine((rb.lat, rb.lon), radius, Direction.EAST)
         rect = Rectangle(lt, rb, division_ratio)
-        return [(instaces.Location(i[0]), i[2]) for i in self.evaluate_regions(rect)[:n_max_results]]
+        return [(instaces.Location(i[0], radius), i[2]) for i in self.evaluate_regions(rect)[:n_max_results]]
 
 
 def get_overall_about_location(
@@ -104,12 +109,18 @@ def get_overall_about_location(
 
 
 def get_best_entites(
-
-    coords: instaces.Coordinates,
-    radius: instaces.Distance,
-    n_max_results: int,
-    preferences: instaces.EntityPreferences,
-
+        self,
+        coords: instaces.Coordinates,
+        radius: instaces.Distance,
+        n_max_results: int,
+        preferences: instaces.EntityPreferences,
 ) -> t.List[t.Tuple[instaces.Entity, instaces.EntityDescription]]:
-
+    close_obj = self.get_all_entities(coords, radius)
+    if preferences == instaces.EntityType.RESTARAUNT:
+        restaurants = [value for value in close_obj if type(value) == instaces.Restaraunt].sort()
+        return restaurants[:n_max_results]
+    elif preferences == instaces.EntityType.RENTAL_POINT:
+        return [value for value in close_obj if type(value) == instaces.TransportStop][:n_max_results]
+    elif preferences == instaces.EntityType.TRANSPORT:
+        return [value for value in close_obj if type(value) == instaces.RentalPoint][:n_max_results]
     return []
