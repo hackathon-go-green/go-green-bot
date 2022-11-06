@@ -93,7 +93,7 @@ class EntityDescription:
 
 @dataclass
 class LocationDescription:
-    desc: str = "Location score is: "
+    desc: str = "Location score is: {}"
     score: float = 0
 
     def __str__(self):

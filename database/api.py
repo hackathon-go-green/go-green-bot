@@ -101,26 +101,28 @@ class DatabaseApi:
         rect = Rectangle(lt, rb, division_ratio)
         return [(instaces.Location(i[0], radius), i[1]) for i in self.evaluate_regions(rect)[:n_max_results]]
 
+    def get_overall_about_location(
+            self, coords: instaces.Coordinates, radius: instaces.Distance
+    ) -> instaces.LocationDescription:
+        return self.evaluate_region(coords, radius)
 
-def get_overall_about_location(
-        self, coords: instaces.Coordinates, radius: instaces.Distance
-) -> instaces.LocationDescription:
-    return self.evaluate_region(coords, radius)
-
-
-def get_best_entites(
-        self,
-        coords: instaces.Coordinates,
-        radius: instaces.Distance,
-        n_max_results: int,
-        preferences: instaces.EntityPreferences,
-) -> t.List[t.Tuple[instaces.Entity, instaces.EntityDescription]]:
-    close_obj = self.get_all_entities(coords, radius)
-    if preferences.entity_type == instaces.EntityType.RESTARAUNT:
-        restaurants = [value for value in close_obj if type(value) == instaces.Restaraunt].sort()
-        return restaurants[:n_max_results]
-    elif preferences.entity_type == instaces.EntityType.RENTAL_POINT:
-        return [value for value in close_obj if type(value) == instaces.TransportStop][:n_max_results]
-    elif preferences.entity_type == instaces.EntityType.TRANSPORT:
-        return [value for value in close_obj if type(value) == instaces.RentalPoint][:n_max_results]
-    return []
+    def get_best_entites(
+            self,
+            coords: instaces.Coordinates,
+            radius: instaces.Distance,
+            n_max_results: int,
+            preferences: instaces.EntityPreferences,
+    ) -> t.List[t.Tuple[instaces.Entity, instaces.EntityDescription]]:
+        close_obj = self.get_all_entities(coords, radius)
+        if preferences.entity_type == instaces.EntityType.RESTARAUNT:
+            restaurants = [(value, instaces.EntityDescription()) for value in close_obj if
+                           type(value) == instaces.Restaraunt]
+            restaurants.sort()
+            return restaurants[:n_max_results]
+        elif preferences.entity_type == instaces.EntityType.RENTAL_POINT:
+            return [(value, instaces.EntityDescription()) for value in close_obj if
+                    type(value) == instaces.TransportStop][:n_max_results]
+        elif preferences.entity_type == instaces.EntityType.TRANSPORT:
+            return [(value, instaces.EntityDescription()) for value in close_obj if
+                    type(value) == instaces.RentalPoint][:n_max_results]
+        return []
