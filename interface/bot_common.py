@@ -3,6 +3,7 @@ import telegram.ext
 
 from dataclasses import dataclass
 from common.instances import Coordinates, Distance
+from interface.strings import BotString
 
 
 @dataclass
@@ -24,7 +25,8 @@ async def make_decide_response(
 ) -> None:
     # TODO
     await context.update.message.reply_text(
-        f"Do you actually want to go outside of your home? From {coordinates}, {radius}"
+        f"Do you actually want to go outside of your home? From {coordinates}, {radius}",
+        reply_markup=markup_helpful(),
     )
 
 
@@ -33,7 +35,8 @@ async def make_overall_response(
 ) -> None:
     # TODO
     await context.update.message.reply_text(
-        f"Do you actually want to go there? This shithole?? {coordinates}, {radius}"
+        f"Do you actually want to go there? This shithole?? {coordinates}, {radius}",
+        reply_markup=markup_helpful(),
     )
 
 
@@ -42,5 +45,29 @@ async def make_inplace_response(
 ) -> None:
     # TODO
     await context.update.message.reply_text(
-        f"Go somewhere from {coordinates}, {radius}"
+        f"Go somewhere from {coordinates}, {radius}",
+        reply_markup=markup_helpful(),
+    )
+
+
+def markup_with_location() -> telegram.ReplyKeyboardMarkup:
+    return telegram.ReplyKeyboardMarkup(
+        keyboard=[],
+        one_time_keyboard=True,
+    )
+
+
+def markup_helpful() -> telegram.ReplyKeyboardMarkup:
+    return telegram.ReplyKeyboardMarkup(
+        keyboard=[],
+        input_field_placeholder="Be Sustainable!",
+        one_time_keyboard=True,
+    )
+
+
+def markup_distance() -> telegram.ReplyKeyboardMarkup:
+    return telegram.ReplyKeyboardMarkup(
+        keyboard=[],
+        input_field_placeholder="Radius in km",
+        one_time_keyboard=True,
     )
