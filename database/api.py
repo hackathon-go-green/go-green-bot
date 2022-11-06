@@ -125,5 +125,4 @@ class DatabaseApi:
         elif preferences.entity_type == instaces.EntityType.TRANSPORT:
             return [(value, instaces.EntityDescription()) for value in close_obj if
                     type(value) == instaces.RentalPoint][:n_max_results]
-        assert False
         return []
